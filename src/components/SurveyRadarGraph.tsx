@@ -40,6 +40,14 @@ const computeEssentialAverages = (surveyData: SurveyResponse[][] | null) => {
   essentialAvgs["Essential 10"] =
     ((questionAvgs[1] + questionAvgs[2]) / 2) * multiplier;
 
+  if (
+    !_.isUndefined(
+      Object.keys(essentialAvgs).find((key) => isNaN(essentialAvgs[key]))
+    )
+  ) {
+    return [];
+  }
+
   return [essentialAvgs];
 };
 
@@ -65,7 +73,7 @@ export default function SurveyRadarGraph(props: Props) {
     setData(computeEssentialAverages(props.surveyData));
   }, [props.surveyData]);
 
-  return !_.isNull(data) &&
+  return !_.isNull(props.surveyData) &&
     data.length > 0 &&
     Object.keys(data[0]).length > 0 ? (
     <RadarGraph data={data} />
