@@ -2,7 +2,6 @@ import axios, { AxiosRequestConfig } from "axios";
 import _ from "lodash";
 
 const apiUrl = process.env.API_URL;
-axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 const api = axios.create({
   baseURL: apiUrl,
 });
@@ -382,7 +381,6 @@ export const fetchSurveyResults = async (
   surveyId: string,
   onFail: (e: any) => void = console.log
 ) => {
-  console.log("requesting");
   const data = await request(
     {
       method: "GET",
@@ -393,7 +391,6 @@ export const fetchSurveyResults = async (
     },
     onFail
   );
-  console.log("do i reach");
   if (!_.isNull(data)) {
     const rawResponses: any[] = data.Data;
     if (data.status === "ERROR") return null;

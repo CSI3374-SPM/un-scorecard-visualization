@@ -55,7 +55,6 @@ const averageQuestionNum = (data: SurveyResponse[][], ndx: number) => {
       numResp++;
     }
   });
-  console.log(total / numResp);
   return total / numResp;
 };
 

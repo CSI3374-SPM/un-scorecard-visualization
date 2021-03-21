@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import RadarGraph from "../../components/RadarGraph";
 import { fetchSurveyResults, SurveyResponse } from "../../api/Wrapper";
 import SurveyRadarGraph from "../../components/SurveyRadarGraph";
 import _ from "lodash";
@@ -53,21 +52,21 @@ function RadarGraphPage() {
   ] = useState(null);
 
   const requestResults = async () => {
-    if (typeof router.query.surveyId !== "string") return;
+    if (!_.isString(router.query.surveyId)) {
+      return;
+    }
     let resp = await fetchSurveyResults(router.query.surveyId);
-    console.log(resp);
     setResults(resp);
   };
 
   useEffect(() => {
-    console.log(1);
-    requestResults().then((r) => {});
-  }, []);
+    requestResults();
+  }, [router.query.surveyId]);
 
   useEffect(() => {
-    const timer = setInterval(async () => await requestResults(), 3000);
+    const timer = setInterval(requestResults, 5000);
     return () => clearInterval(timer);
-  }, [results]);
+  }, [router.query.surveyId]);
 
   if (router.query.surveyId) {
     /* Radar graph component */
