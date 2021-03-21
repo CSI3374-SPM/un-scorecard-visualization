@@ -71,9 +71,9 @@ function RadarGraphPage() {
   if (router.query.surveyId) {
     /* Radar graph component */
     return (
-      <>
+      <div className="content-center max-w-2xl mx-auto">
         <SurveyRadarGraph surveyData={results} />
-      </>
+      </div>
     );
   }
   // Not found
