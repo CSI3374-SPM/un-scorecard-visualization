@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { fetchSurveyResults, SurveyResponse } from "../../api/Wrapper";
+import {
+  closeResultsSocket,
+  fetchSurveyResults,
+  fetchSurveyResultsStream,
+  SurveyResponse,
+} from "../../api/Wrapper";
 import SurveyRadarGraph from "../../components/SurveyRadarGraph";
 import _ from "lodash";
 
@@ -50,23 +55,42 @@ function RadarGraphPage() {
     SurveyResponse[][] | null,
     (r: SurveyResponse[][] | null) => void
   ] = useState(null);
+  const [socket, setSocket]: [
+    SocketIOClient.Socket | null,
+    (s: SocketIOClient.Socket | null) => void
+  ] = useState(null as SocketIOClient.Socket | null);
 
-  const requestResults = async () => {
-    if (!_.isString(router.query.surveyId)) {
-      return;
+  // const requestResults = async () => {
+  //   if (!_.isString(router.query.surveyId)) {
+  //     return;
+  //   }
+  //   let resp = await fetchSurveyResults(router.query.surveyId);
+  //   setResults(resp);
+  // };
+
+  useEffect(() => {
+    if (_.isNull(socket) && _.isString(router.query.surveyId)) {
+      setSocket(fetchSurveyResultsStream(router.query.surveyId, setResults));
+    } else if (!_.isNull(socket)) {
+      closeResultsSocket(socket);
+      setSocket(null);
     }
-    let resp = await fetchSurveyResults(router.query.surveyId);
-    setResults(resp);
-  };
-
-  useEffect(() => {
-    requestResults();
+    return () => {
+      if (!_.isNull(socket)) {
+        console.log("results a");
+        closeResultsSocket(socket);
+      }
+    };
   }, [router.query.surveyId]);
 
   useEffect(() => {
-    const timer = setInterval(requestResults, 5000);
-    return () => clearInterval(timer);
-  }, [router.query.surveyId]);
+    return () => {
+      if (!_.isNull(socket)) {
+        console.log("results b");
+        closeResultsSocket(socket);
+      }
+    };
+  }, []);
 
   if (router.query.surveyId) {
     /* Radar graph component */
