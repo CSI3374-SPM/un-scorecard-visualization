@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   closeResultsSocket,
-  fetchSurveyResults,
   fetchSurveyResultsStream,
   SurveyResponse,
 } from "../../api/Wrapper";
 import SurveyRadarGraph from "../../components/SurveyRadarGraph";
 import _ from "lodash";
+import Switch from "../../components/Switch";
+import SurveyBarGraphCarousel from "../../components/SurveyBarGraphCarousel";
+import EssentialRadarGraphCarousel from "../../components/EssentialRadarGraphCarousel";
 
 // const characterData = [
 //   {
@@ -59,14 +61,8 @@ function RadarGraphPage() {
     SocketIOClient.Socket | null,
     (s: SocketIOClient.Socket | null) => void
   ] = useState(null as SocketIOClient.Socket | null);
-
-  // const requestResults = async () => {
-  //   if (!_.isString(router.query.surveyId)) {
-  //     return;
-  //   }
-  //   let resp = await fetchSurveyResults(router.query.surveyId);
-  //   setResults(resp);
-  // };
+  const [showEssentials, setShowEssentials] = useState(false);
+  const [showScores, setShowScores] = useState(false);
 
   useEffect(() => {
     if (_.isNull(socket) && _.isString(router.query.surveyId)) {
@@ -95,8 +91,36 @@ function RadarGraphPage() {
   if (router.query.surveyId) {
     /* Radar graph component */
     return (
-      <div className="content-center max-w-2xl mx-auto">
-        <SurveyRadarGraph surveyData={results} />
+      <div className="content-center max-w-5xl mx-auto">
+        <div className="flex flex-row p-4">
+          <div className="flex-grow max-w-6xl">
+            <SurveyRadarGraph surveyData={results} />
+          </div>
+          <div className="flex flex-col p-4">
+            <Switch
+              label="Show Essentials Radar Charts"
+              callback={setShowEssentials}
+            />
+            {showEssentials ? (
+              <div className="max-w-md">
+                <EssentialRadarGraphCarousel surveyData={results} />
+              </div>
+            ) : (
+              <></>
+            )}
+            <Switch
+              label="Show Question Score Charts"
+              callback={setShowScores}
+            />
+            {showScores ? (
+              <div className="max-w-md">
+                <SurveyBarGraphCarousel surveyData={results} />
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
