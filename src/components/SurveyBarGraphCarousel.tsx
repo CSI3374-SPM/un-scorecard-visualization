@@ -19,7 +19,7 @@ export default function SurveyBarGraphCarousel(props: Props) {
         <ArrowBack />
       </button>
       <div className="inline-flex flex-col max-w-md p-4">
-        <h3>{questions[index].question}</h3>
+        <h3 className="text-sm">{questions[index].question}</h3>
         <SurveyBarGraph surveyData={props.surveyData} questionIndex={index} />
       </div>
       <button
