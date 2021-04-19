@@ -10,22 +10,32 @@ type Props = {
 
 export default function BarGraph(props: Props) {
   const [data, setData] = useState(props.data);
+  const [max, setMax] = useState(5);
 
   useEffect(() => {
     setData(props.data);
+    setMax(
+      props.data.reduce((a, b) => {
+        if (a < b) {
+          return b;
+        }
+        if (b < 5) {
+          return 5;
+        }
+        return b;
+      })
+    );
   }, [props.data]);
 
   return (
     <VictoryChart theme={VictoryTheme.material}>
       <VictoryBar
-        data={[
-          { x: 0, y: data[0] },
-          { x: 1, y: data[1] },
-          { x: 2, y: data[2] },
-          { x: 3, y: data[3] },
-          { x: 4, y: data[4] },
-          { x: 5, y: data[5] },
-        ]}
+        barWidth={(i) => 25}
+        alignment="start"
+        data={data.map((y, i) => {
+          return { x: i.toString(), y };
+        })}
+        domain={[0, max]}
       />
     </VictoryChart>
   );

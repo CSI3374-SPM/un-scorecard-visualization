@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import RadarGraph, { Memo } from "./RadarGraph";
 import _ from "lodash";
 import { questions, SurveyResponse } from "../api/Wrapper";
+import { VictoryBar, VictoryChart, VictoryTheme } from "victory";
 
 interface Props {
   surveyData: SurveyResponse[][] | null;
@@ -27,12 +28,12 @@ const computeEssentialAverage = (
   });
 
   // There needs to be at least 3 keys to display properly
-  const keys = ["", " "];
-  keys.forEach((key) => {
-    if (Object.keys(essentialAvg).length < 3) {
-      essentialAvg[key] = 0;
-    }
-  });
+  // const keys = ["", " "];
+  // keys.forEach((key) => {
+  //   if (Object.keys(essentialAvg).length < 3) {
+  //     essentialAvg[key] = 0;
+  //   }
+  // });
 
   Object.keys(essentialAvg).forEach((key) => {
     if (isNaN(essentialAvg[key])) {
@@ -78,11 +79,36 @@ export default function EssentialRadarGraph(props: Props) {
     setData(computeEssentialAverage(props.surveyData, props.essential));
   }, [props.surveyData, props.essential]);
 
-  return !_.isNull(props.surveyData) &&
-    data.length > 0 &&
-    Object.keys(data[0]).length > 0 ? (
+  if (
+    _.isNull(props.surveyData) ||
+    data.length < 1 ||
+    Object.keys(data[0]).length < 1
+  ) {
+    return <></>;
+  }
+
+  console.log(data[0]);
+
+  return Object.keys(data[0]).length > 2 ? (
     <RadarGraph data={data} />
   ) : (
-    <></>
+    <VictoryChart theme={VictoryTheme.material}>
+      <VictoryBar
+        barWidth={(i) => 40}
+        alignment="start"
+        domain={[0, 5]}
+        data={Object.keys(data[0]).map((key) => {
+          return { x: key, y: data[0][key] };
+        })}
+      />
+    </VictoryChart>
   );
+
+  // return !_.isNull(props.surveyData) &&
+  //   data.length > 0 &&
+  //   Object.keys(data[0]).length > 0 ? (
+  //   <RadarGraph data={data} />
+  // ) : (
+  //   <></>
+  // );
 }

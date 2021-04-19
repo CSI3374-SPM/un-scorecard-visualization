@@ -56,7 +56,7 @@ export default function RadarGraph(props: Props) {
   const [maxima, setMaxima] = useState(getMaxima(props.data));
 
   useEffect(() => {
-    console.log(data);
+    // console.log(data);
     setData(processData(props.data));
     setMaxima(getMaxima(props.data));
   }, [props.data]);

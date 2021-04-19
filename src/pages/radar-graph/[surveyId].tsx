@@ -92,6 +92,9 @@ function RadarGraphPage() {
     /* Radar graph component */
     return (
       <div className="content-center max-w-5xl mx-auto">
+        <h1 className="text-center text-xl mt-8">
+          <strong>Visualizations for survey {router.query.surveyId}</strong>
+        </h1>
         <div className="flex flex-row p-4">
           <div className="flex-grow max-w-6xl">
             <SurveyRadarGraph surveyData={results} />
