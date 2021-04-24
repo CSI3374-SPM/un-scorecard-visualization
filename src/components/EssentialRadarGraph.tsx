@@ -92,16 +92,30 @@ export default function EssentialRadarGraph(props: Props) {
   return Object.keys(data[0]).length > 2 ? (
     <RadarGraph data={data} />
   ) : (
-    <VictoryChart theme={VictoryTheme.material}>
-      <VictoryBar
-        barWidth={(i) => 40}
-        alignment="start"
-        domain={[0, 5]}
-        data={Object.keys(data[0]).map((key) => {
-          return { x: key, y: data[0][key] };
-        })}
-      />
-    </VictoryChart>
+    <div className="flex flex-col">
+      <div className="inline-flex flex-row space-x-0 relative">
+        <div className="inline-block self-center min-w-12 -m-16">
+          <p className="self-start transform -rotate-90 text-xs">
+            Average score for the given question
+          </p>
+        </div>
+        <div className="w-full">
+          <VictoryChart theme={VictoryTheme.material}>
+            <VictoryBar
+              barWidth={(i) => 40}
+              alignment="start"
+              domain={[0, 5]}
+              data={Object.keys(data[0]).map((key) => {
+                return { x: key, y: data[0][key] };
+              })}
+            />
+          </VictoryChart>
+        </div>
+      </div>
+      <div className="self-center">
+        <p className="text-xs">Question</p>
+      </div>
+    </div>
   );
 
   // return !_.isNull(props.surveyData) &&

@@ -6,6 +6,8 @@ import { VictoryChart, VictoryTheme } from "victory";
 
 type Props = {
   data: number[];
+  xLabel: string;
+  yLabel: string;
 };
 
 export default function BarGraph(props: Props) {
@@ -28,15 +30,29 @@ export default function BarGraph(props: Props) {
   }, [props.data]);
 
   return (
-    <VictoryChart theme={VictoryTheme.material}>
-      <VictoryBar
-        barWidth={(i) => 25}
-        alignment="start"
-        data={data.map((y, i) => {
-          return { x: i.toString(), y };
-        })}
-        domain={[0, max]}
-      />
-    </VictoryChart>
+    <div className="flex flex-col">
+      <div className="inline-flex flex-row space-x-0 relative">
+        <div className="inline-block self-center min-w-12 -m-16">
+          <p className="self-start transform -rotate-90 text-xs">
+            {props.yLabel}
+          </p>
+        </div>
+        <div className="w-full">
+          <VictoryChart theme={VictoryTheme.material}>
+            <VictoryBar
+              barWidth={(i) => 25}
+              alignment="start"
+              data={data.map((y, i) => {
+                return { x: i.toString(), y };
+              })}
+              domain={[0, max]}
+            />
+          </VictoryChart>
+        </div>
+      </div>
+      <div className="self-center">
+        <p className="text-xs">{props.xLabel}</p>
+      </div>
+    </div>
   );
 }

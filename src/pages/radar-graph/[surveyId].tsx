@@ -93,7 +93,10 @@ function RadarGraphPage() {
     return (
       <div className="content-center max-w-5xl mx-auto">
         <h1 className="text-center text-xl mt-8">
-          <strong>Visualizations for survey {router.query.surveyId}</strong>
+          <strong>
+            Disaster Resilience Scorecard for Cities: Visualizations for survey{" "}
+            {router.query.surveyId}
+          </strong>
         </h1>
         <div className="flex flex-row p-4">
           <div className="flex-grow max-w-6xl">
@@ -101,7 +104,7 @@ function RadarGraphPage() {
           </div>
           <div className="flex flex-col p-4">
             <Switch
-              label="Show Essentials Radar Charts"
+              label="Show average scores for questions within each Essential"
               callback={setShowEssentials}
             />
             {showEssentials ? (
@@ -112,7 +115,7 @@ function RadarGraphPage() {
               <></>
             )}
             <Switch
-              label="Show Question Score Charts"
+              label="Show score distribution for each survey question"
               callback={setShowScores}
             />
             {showScores ? (
