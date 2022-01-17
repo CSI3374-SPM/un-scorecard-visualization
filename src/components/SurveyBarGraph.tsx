@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import BarGraph from "./BarGraph";
 import _ from "lodash";
-import { questions, SurveyResponse } from "../api/Wrapper";
+import { QuestionType, SurveyResponse} from "../api/WrapperV2";
 
 interface Props {
-  surveyData: SurveyResponse[][] | null;
+  surveyData: SurveyResponse[] | null;
   questionIndex: number;
+  questions: QuestionType[];
 }
 
 const computeResponseSums = (
-  surveyData: SurveyResponse[][] | null,
+  surveyData: SurveyResponse[] | null,
   ndx: number
 ) => {
   if (_.isNull(surveyData)) return [0, 0, 0, 0, 0, 0];
@@ -17,18 +18,19 @@ const computeResponseSums = (
   return QuestionNum(surveyData, ndx);
 };
 
-const QuestionNum = (data: SurveyResponse[][], ndx: number) => {
+const QuestionNum = (data: SurveyResponse[], ndx: number) => {
   let scoreTotals = [0, 0, 0, 0, 0, 0];
-  data.forEach((responder) => {
-    const response = responder.find(
-      (question) => question.questionIndex === ndx
-    );
-    if (!_.isUndefined(response)) {
-      if (response.score >= 0 && response.score <= 5) {
-        scoreTotals[response.score]++;
+  let currentResp = data.filter(response => response.questionNumber == (ndx + 1))
+
+  currentResp.forEach((response) => {
+    if(!_.isUndefined(response)) {
+      let score = Number(response.score)
+      if(score >= 0 && score <= 5) {
+        scoreTotals[score]++;
       }
     }
-  });
+  })
+
   return scoreTotals;
 };
 

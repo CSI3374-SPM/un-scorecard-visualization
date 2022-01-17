@@ -1,29 +1,24 @@
 import { ArrowBack, ArrowForward } from "@material-ui/icons";
 import React, { useState } from "react";
-import { SurveyResponse } from "../api/Wrapper";
+import {QuestionType, SurveyResponse} from "../api/WrapperV2";
 import EssentialRadarGraph, {
   essentialQuestionsIndices,
 } from "./EssentialRadarGraph";
 
 interface Props {
-  surveyData: SurveyResponse[][] | null;
+  surveyData: SurveyResponse[] | null;
+  questions: QuestionType[];
 }
 
-const essentialDesc = [
-  "Integration of public health and governance",
-  "Integration of public health and disaster scenarios",
-  "Integration of public health and finances",
-  "Integration of public health and land use/building codes",
-  "Management of ecosystem services that affect public health",
-  "Integration of public health and institutional capacity",
-  "Integration of public health and societal capacity",
-  "Integration of public health and infrastructure resilience",
-  "Integration of public health and disaster response",
-  "Integration of public health and recovery/building back better",
-];
+
+
+
+
 
 export default function EssentialRadarGraphCarousel(props: Props) {
   const [essential, setEssential] = useState(1);
+  const essentialDesc = [...new Set(props.questions.map((question: QuestionType) => question.category))];
+  console.log("Descriptions: ", essentialDesc)
   return (
     <div className="flex flex-row p-4">
       <button
@@ -41,6 +36,7 @@ export default function EssentialRadarGraphCarousel(props: Props) {
         <EssentialRadarGraph
           surveyData={props.surveyData}
           essential={essential}
+          questions={props.questions}
         />
       </div>
       <button

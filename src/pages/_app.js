@@ -17,7 +17,7 @@ const App = ({Component, pageProps}) => {
   return (
     <>
       <Head>
-        <title>UN Scorecard Visualization</title>
+        <title>Scorecard Visualization</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width"/>
       </Head>
       <Component {...pageProps} />

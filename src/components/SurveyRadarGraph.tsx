@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 import RadarGraph, { Memo } from "./RadarGraph";
 import _ from "lodash";
-import { questions, SurveyResponse } from "../api/Wrapper";
+import { QuestionType, SurveyResponse} from "../api/WrapperV2";
+
+
+
 
 interface Props {
-  surveyData: SurveyResponse[][] | null;
+  surveyData: SurveyResponse[] | null;
+  questions: QuestionType[];
 }
 
-const computeEssentialAverages = (surveyData: SurveyResponse[][] | null) => {
+
+
+const computeEssentialAverages = (surveyData: SurveyResponse[] | null, questions: QuestionType[]) => {
   if (_.isNull(surveyData)) return [];
 
   const questionAvgs = questions.map((_q, i) => {
@@ -51,18 +57,21 @@ const computeEssentialAverages = (surveyData: SurveyResponse[][] | null) => {
   return [essentialAvgs];
 };
 
-const averageQuestionNum = (data: SurveyResponse[][], ndx: number) => {
+const averageQuestionNum = (data: SurveyResponse[], ndx: number) => {
   let total = 0;
   let numResp = 0;
-  data.forEach((responder) => {
-    const response = responder.find(
-      (question) => question.questionIndex === ndx
-    );
-    if (!_.isUndefined(response)) {
-      total += response.score;
+
+  console.log("Data for averages: ", data)
+  console.log("index: ", ndx)
+  let currentResp = data.filter(response => response.questionNumber == (ndx + 1))
+  console.log("currentResp: ", currentResp)
+  currentResp.forEach((response: SurveyResponse) => {
+    if(!_.isUndefined(response)) {
+      total += Number(response.score);
       numResp++;
     }
-  });
+  })
+  console.log("Average for ", ndx, " is: ", total/numResp, "with total: ", total, "responses: ", numResp)
   return total / numResp;
 };
 
@@ -70,9 +79,9 @@ export default function SurveyRadarGraph(props: Props) {
   const [data, setData]: [Memo[], (m: Memo[]) => void] = useState([{}]);
 
   useEffect(() => {
-    setData(computeEssentialAverages(props.surveyData));
+    setData(computeEssentialAverages(props.surveyData, props.questions));
   }, [props.surveyData]);
-
+  console.log("Data passed to radar graph: ", data)
   return !_.isNull(props.surveyData) &&
     data.length > 0 &&
     Object.keys(data[0]).length > 0 ? (

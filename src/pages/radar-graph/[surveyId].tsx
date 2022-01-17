@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  closeResultsSocket,
-  fetchSurveyResultsStream,
+  closeResultsSocketV2,
+  fetchSurveyResultsStreamV2, getQuestions, QuestionType,
   SurveyResponse,
-} from "../../api/Wrapper";
+} from "../../api/WrapperV2";
 import SurveyRadarGraph from "../../components/SurveyRadarGraph";
 import _ from "lodash";
 import Switch from "../../components/Switch";
@@ -54,8 +54,8 @@ function RadarGraphPage() {
   const router = useRouter();
   // @ts-ignore
   const [results, setResults]: [
-    SurveyResponse[][] | null,
-    (r: SurveyResponse[][] | null) => void
+    SurveyResponse[] | null,
+    (r: SurveyResponse[] | null) => void
   ] = useState(null);
   const [socket, setSocket]: [
     SocketIOClient.Socket | null,
@@ -63,18 +63,25 @@ function RadarGraphPage() {
   ] = useState(null as SocketIOClient.Socket | null);
   const [showEssentials, setShowEssentials] = useState(false);
   const [showScores, setShowScores] = useState(false);
+  // @ts-ignore
+  const [questions, setQuestions]: [
+        QuestionType[] | null,
+    (questions: QuestionType[] | null) => void
+  ] = useState([]);
+
+
 
   useEffect(() => {
     if (_.isNull(socket) && _.isString(router.query.surveyId)) {
-      setSocket(fetchSurveyResultsStream(router.query.surveyId, setResults));
+      setSocket(fetchSurveyResultsStreamV2(router.query.surveyId, setResults));
     } else if (!_.isNull(socket)) {
-      closeResultsSocket(socket);
+      closeResultsSocketV2(socket);
       setSocket(null);
     }
     return () => {
       if (!_.isNull(socket)) {
         console.log("results a");
-        closeResultsSocket(socket);
+        closeResultsSocketV2(socket);
       }
     };
   }, [router.query.surveyId]);
@@ -83,10 +90,19 @@ function RadarGraphPage() {
     return () => {
       if (!_.isNull(socket)) {
         console.log("results b");
-        closeResultsSocket(socket);
+        closeResultsSocketV2(socket);
       }
     };
   }, []);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      setQuestions(await getQuestions(router.query.surveyId as string));
+      console.log("Fetched questions", questions);
+    }
+    loadQuestions();
+  }, [router.query.surveyId]);
+
 
   if (router.query.surveyId) {
     /* Radar graph component */
@@ -100,7 +116,7 @@ function RadarGraphPage() {
         </h1>
         <div className="flex flex-row p-4">
           <div className="flex-grow max-w-6xl">
-            <SurveyRadarGraph surveyData={results} />
+            <SurveyRadarGraph surveyData={results} questions={questions} />
           </div>
           <div className="flex flex-col p-4">
             <Switch
@@ -109,7 +125,7 @@ function RadarGraphPage() {
             />
             {showEssentials ? (
               <div className="max-w-md">
-                <EssentialRadarGraphCarousel surveyData={results} />
+                <EssentialRadarGraphCarousel surveyData={results} questions={questions} />
               </div>
             ) : (
               <></>
@@ -120,7 +136,7 @@ function RadarGraphPage() {
             />
             {showScores ? (
               <div className="max-w-md">
-                <SurveyBarGraphCarousel surveyData={results} />
+                <SurveyBarGraphCarousel surveyData={results} questions={questions} />
               </div>
             ) : (
               <></>

@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from "react";
 import RadarGraph, { Memo } from "./RadarGraph";
 import _ from "lodash";
-import { questions, SurveyResponse } from "../api/Wrapper";
+import {QuestionType, SurveyResponse} from "../api/WrapperV2";
 import { VictoryBar, VictoryChart, VictoryTheme } from "victory";
 
 interface Props {
-  surveyData: SurveyResponse[][] | null;
+  surveyData: SurveyResponse[] | null;
   essential: number;
+  questions: QuestionType[]
 }
 
 const computeEssentialAverage = (
-  surveyData: SurveyResponse[][] | null,
-  essential: number
+  props: Props
 ) => {
-  if (_.isNull(surveyData)) return [];
+  if (_.isNull(props.surveyData)) return [];
 
   let essentialAvg: Memo = {};
 
-  const essentialQ = essentialQuestionsIndices[essential - 1];
+  const essentialQ = essentialQuestionsIndices[props.essential - 1];
   const questionAvgs = essentialQ.map((qIndex) =>
-    averageQuestionNum(surveyData, qIndex)
+    averageQuestionNum(props.surveyData, qIndex)
   );
 
   questionAvgs.forEach((avg, index) => {
-    let q = questions[essentialQ[index]].question.split(" ")[0];
+    let q = props.questions[essentialQ[index]].text.split(" ")[0];
     essentialAvg[q] = avg;
   });
 
@@ -41,42 +41,49 @@ const computeEssentialAverage = (
     }
   });
 
+  console.log("essential AVG: ", essentialAvg)
   return [essentialAvg];
 };
 
-const averageQuestionNum = (data: SurveyResponse[][], ndx: number) => {
+const averageQuestionNum = (data: SurveyResponse[] | null, ndx: number) => {
   let total = 0;
   let numResp = 0;
-  data.forEach((responder) => {
-    const response = responder.find(
-      (question) => question.questionIndex === ndx
-    );
-    if (!_.isUndefined(response)) {
-      total += response.score;
+
+  console.log("Data for averages: ", data)
+  console.log("index: ", ndx)
+  if(_.isNull(data)) {
+    return  0
+  }
+  let currentResp = data.filter(response => response.questionNumber == (ndx + 1))
+  console.log("currentResp: ", currentResp)
+  currentResp.forEach((response: SurveyResponse) => {
+    if(!_.isUndefined(response)) {
+      total += Number(response.score);
       numResp++;
     }
-  });
+  })
   return total / numResp;
 };
 
 export const essentialQuestionsIndices = [
-  [0],
-  [1, 2, 3],
-  [4],
+  [0, 1],
+  [2, 3, 4],
   [5],
   [6],
-  [7, 8, 9, 10],
-  [11, 12, 13],
-  [14, 15, 16],
-  [17, 18, 19, 20],
-  [21, 22],
+  [7],
+  [8, 9],
+  [10, 11, 12],
+  [13, 14, 15],
+  [16, 17, 18],
+  [19, 20],
 ];
 
 export default function EssentialRadarGraph(props: Props) {
   const [data, setData]: [Memo[], (m: Memo[]) => void] = useState([{}]);
 
   useEffect(() => {
-    setData(computeEssentialAverage(props.surveyData, props.essential));
+    setData(computeEssentialAverage(props));
+    console.log("survey data in essential radar graph: ", props.surveyData)
   }, [props.surveyData, props.essential]);
 
   if (
@@ -103,7 +110,7 @@ export default function EssentialRadarGraph(props: Props) {
           <VictoryChart theme={VictoryTheme.material}>
             <VictoryBar
               barWidth={(i) => 40}
-              alignment="start"
+              alignment="middle"
               domain={[0, 5]}
               data={Object.keys(data[0]).map((key) => {
                 return { x: key, y: data[0][key] };
